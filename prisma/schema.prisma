@@ -17,22 +17,58 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  notes    Note[]
-  accounts Account[]
-  sessions Session[]
+  notes          Note[]
+  accounts       Account[]
+  sessions       Session[]
+  collaborations NoteCollaborator[]
+  presence       NotePresence[]
 }
 
 model Note {
-  id        String   @id @default(cuid())
-  title     String   @default("Untitled")
-  content   String   @default("")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String
+  id          String   @id @default(cuid())
+  title       String   @default("Untitled")
+  content     String   @default("")
+  shareToken  String?  @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collaborators NoteCollaborator[]
+  presence      NotePresence[]
 
   @@index([userId])
+}
+
+enum Permission {
+  VIEW
+  EDIT
+}
+
+model NoteCollaborator {
+  id         String     @id @default(cuid())
+  noteId     String
+  userId     String
+  permission Permission @default(VIEW)
+  createdAt  DateTime   @default(now())
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([noteId, userId])
+  @@index([noteId])
+  @@index([userId])
+}
+
+model NotePresence {
+  noteId    String
+  userId    String
+  updatedAt DateTime @updatedAt
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([noteId, userId])
 }
 
 model Account {

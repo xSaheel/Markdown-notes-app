@@ -45,6 +45,7 @@ export default async function DashboardPage() {
               title={note.title}
               content={note.content}
               updatedAt={note.updatedAt}
+              isOwner={note.isOwner}
             />
           ))}
         </div>

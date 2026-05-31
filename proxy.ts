@@ -9,9 +9,13 @@ export default auth(function proxy(req: NextRequest & { auth: unknown }) {
   const isAuthPage =
     nextUrl.pathname === "/login" || nextUrl.pathname === "/signup";
 
+  const isPublic = nextUrl.pathname.startsWith("/share/");
+
   const isProtected =
     nextUrl.pathname.startsWith("/dashboard") ||
     nextUrl.pathname.startsWith("/notes");
+
+  if (isPublic) return NextResponse.next();
 
   if (isAuthPage && isLoggedIn) {
     return NextResponse.redirect(new URL("/dashboard", nextUrl));
